@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# saída local do site estático (o GitHub Action gera a dele na hora)
+painel_ciclo/site/
+
+# relatórios locais
+painel_ciclo/saidas/
+
+# cópias antigas na raiz (o dashboard oficial é painel_ciclo/dashboard.py)
+/dashboard.py
+/dashboard (1).py
+
+# OBS: painel_ciclo/dados/ (cache das séries) é COMMITADO de propósito —
+# serve de fallback se as APIs do BCB/IBGE falharem durante o build no Actions.
