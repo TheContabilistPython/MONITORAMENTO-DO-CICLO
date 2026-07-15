@@ -1,10 +1,10 @@
 name: Publica painel no GitHub Pages
 
 on:
-  # republica todo dia às 09:00 de Brasília (12:00 UTC);
-  # os dados mudam no máximo uma vez por mês, mas o custo é zero
+  # Republica ao meio-dia de Brasília (15:00 UTC), depois da janela usual
+  # de divulgação. Isso evita consultar a API enquanto o dado do dia entra no ar.
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 15 * * *"
   # republica a cada push na branch principal
   push:
     branches: [main]

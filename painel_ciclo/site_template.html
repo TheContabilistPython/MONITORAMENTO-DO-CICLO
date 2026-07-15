@@ -26,6 +26,9 @@ button{font:inherit;color:inherit}
 .masthead-topo{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end}
 .marca-kicker,.secao-kicker{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--verde)}
 .marca{font-family:var(--serif);font-size:46px;font-weight:600;line-height:.95;letter-spacing:-.035em;margin:5px 0 4px}
+.marca-link{display:inline-block;color:inherit;text-decoration:none;cursor:pointer}
+.marca-link:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:7px}
+.marca-link:focus-visible{outline:2px solid var(--verde);outline-offset:5px}
 .marca-sub{color:var(--tinta-2);font-size:13px}
 .edicao{text-align:right;border-left:1px solid var(--linha);padding-left:24px;min-width:280px}
 .edicao strong{display:block;font-family:var(--serif);font-size:21px;font-weight:600;margin:3px 0}
@@ -69,10 +72,13 @@ main{padding-top:28px}
 .secao-cab{display:flex;justify-content:space-between;gap:28px;align-items:end;border-bottom:1px solid var(--tinta);padding-bottom:12px;margin-bottom:0}
 .secao-cab p{max-width:520px;text-align:right}
 .grade-setores{display:grid;grid-template-columns:repeat(3,1fr)}
-.setor-card{appearance:none;border:0;border-right:1px solid var(--linha);border-bottom:1px solid var(--linha);background:transparent;
-  text-align:left;padding:24px 25px 22px 0;margin-right:25px;min-height:200px;cursor:pointer;transition:background .18s,padding .18s}
+.setor-card{appearance:none;position:relative;overflow:hidden;border:0;border-right:1px solid var(--linha);border-bottom:1px solid var(--linha);
+  background:linear-gradient(145deg,var(--cenario-fundo,transparent),rgba(251,250,246,.18) 72%);text-align:left;
+  padding:24px 25px 22px 18px;margin-right:25px;min-height:200px;cursor:pointer;transition:background .18s,transform .18s}
+.setor-card::before{content:'';position:absolute;left:0;top:22px;bottom:22px;width:3px;background:var(--cenario,var(--cinza));opacity:.62}
 .setor-card:nth-child(3n){border-right:0;margin-right:0}
-.setor-card:hover{background:rgba(251,250,246,.65);padding-left:14px}
+.setor-card:hover{background:linear-gradient(145deg,var(--cenario-hover,rgba(251,250,246,.72)),rgba(251,250,246,.34) 72%);transform:translateY(-1px)}
+.setor-card:focus-visible{outline:2px solid var(--cenario,var(--verde));outline-offset:-2px}
 .setor-topo{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
 .setor-num{font-size:10px;letter-spacing:.14em;color:var(--tinta-2)}
 .setor-card h3{font-family:var(--serif);font-size:27px;font-weight:600;margin:20px 0 6px}
@@ -94,8 +100,15 @@ main{padding-top:28px}
 .celula-sinal.stale{opacity:.42;border-style:dashed}
 .valor-tabela{font-weight:600;font-size:13px;white-space:nowrap}
 .competencia{font-size:10px;color:var(--tinta-2);white-space:nowrap}
-.breadcrumb{display:flex;gap:8px;align-items:center;font-size:11px;color:var(--tinta-2);margin-bottom:22px}
+.breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:11px;color:var(--tinta-2);margin-bottom:22px}
 .breadcrumb button{border:0;background:transparent;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.breadcrumb .voltar-inicio{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--linha);background:rgba(251,250,246,.58);
+  padding:5px 10px 5px 5px;text-decoration:none;font-weight:600;transition:border-color .18s,background .18s}
+.seta-voltar{display:inline-flex;width:25px;height:25px;align-items:center;justify-content:center;background:var(--tinta);color:var(--papel);
+  font-size:16px;line-height:1;transition:transform .18s}
+.breadcrumb .voltar-inicio:hover{border-color:var(--tinta);background:var(--cartao)}
+.breadcrumb .voltar-inicio:hover .seta-voltar{transform:translateX(-2px)}
+.breadcrumb .voltar-inicio:focus-visible{outline:2px solid var(--verde);outline-offset:2px}
 .pagina-cab{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end;border-top:1px solid var(--tinta);border-bottom:1px solid var(--linha);padding:25px 0}
 .pagina-cab h1{font-family:var(--serif);font-size:43px;font-weight:600;letter-spacing:-.03em;margin:4px 0}
 .pagina-cab p{margin:0;color:var(--tinta-2);max-width:690px;line-height:1.55}
@@ -160,7 +173,7 @@ main{padding-top:28px}
     <div class="masthead-topo">
       <div>
         <div class="marca-kicker">Monitoramento econômico</div>
-        <div class="marca">Observatório do Ciclo</div>
+        <a class="marca marca-link" href="#home" aria-label="Voltar ao panorama inicial">Observatório do Ciclo</a>
         <div class="marca-sub">Indicadores coincidentes da atividade brasileira</div>
       </div>
       <div class="edicao">
@@ -176,7 +189,7 @@ main{padding-top:28px}
     </nav>
     <div class="aviso-frescor" id="aviso-frescor"></div>
   </header>
-  <main id="conteudo" class="revelar"></main>
+  <main id="conteudo" class="revelar" tabindex="-1"></main>
   <footer class="rodape" id="rodape"></footer>
 </div>
 
@@ -276,7 +289,7 @@ function comparativos(){
 function setorCard(setor,idx){
   const grupo=grupoDe(setor),r=resumoGrupo(grupo),cor=r.share>=.6?CORES.positivo:r.share>=.4?CORES.estavel:CORES.negativo;
   const destaque=grupo.find(i=>i.nucleo)||grupo[0];
-  return `<button class="setor-card" onclick="nav('s/${setor.slug}')">
+  return `<button class="setor-card" style="--cenario:${cor};--cenario-fundo:${cor}12;--cenario-hover:${cor}1d" onclick="nav('s/${setor.slug}')" aria-label="Abrir setor ${esc(setor.nome)}">
     <div class="setor-topo"><span class="setor-num">${String(idx+1).padStart(2,'0')} / SETOR</span><span class="saldo-setor" style="color:${cor}">${r.altas}<small> / ${r.total}</small></span></div>
     <h3>${esc(setor.nome)}</h3><p>${r.altas} em alta, ${r.quedas} em queda na fotografia de ${mesPt(referenciaSelecionada,true).toLowerCase()}.</p>
     <div class="setor-rodape"><span class="tag-estagio" style="color:${cor}">${Math.round(r.share*100)}% positivos</span>${destaque?svgSpark(destaque,cor):''}</div>
@@ -305,17 +318,20 @@ function telaHome(){
     <div class="numero-chave"><strong>${pct}%</strong><span>dos indicadores centrais em trajetória positiva</span></div>${tagEstagio(p)}</div>
     <div class="hero-grafico"><div class="grafico-cab"><div><div class="secao-kicker">Panorama no tempo</div><h2>Doze meses de difusão</h2></div><p>Clique em um mês para reconstruir<br>o retrato daquele período.</p></div>${graficoPanorama()}${seletorMeses()}</div></section>
     ${comparativos()}
-    <section class="secao"><div class="secao-cab"><div><div class="secao-kicker">Mapa da atividade</div><h2>Setores em perspectiva</h2></div><p>Uma leitura compacta da direção de cada grupo. As cores funcionam como sinal, não como preenchimento decorativo.</p></div><div class="grade-setores">${SETORES.map(setorCard).join('')}</div></section>
+    <section class="secao"><div class="secao-cab"><div><div class="secao-kicker">Mapa da atividade</div><h2>Setores em perspectiva</h2></div><p>O fundo suave resume o cenário de cada grupo; números e séries preservam a leitura detalhada.</p></div><div class="grade-setores">${SETORES.map(setorCard).join('')}</div></section>
     <section class="secao"><div class="secao-cab"><div><div class="secao-kicker">Série histórica</div><h2>Como os indicadores mudaram</h2></div><p>Setas sólidas usam a competência do próprio mês. Setas esmaecidas carregam a última divulgação disponível.</p></div>${matrizIndicadores()}</section>`;
 }
 function faixaHistorico(ind){
   return `<div class="faixa-historico">${(ind.historico||[]).filter(h=>h.referencia<=referenciaSelecionada).slice(-10).map(h=>`<span class="ponto-mes" style="background:${corSinal(direcao(h))}" data-mes="${mesPt(h.referencia)}" title="${mesPt(h.referencia,true)} · tendência ${textoSinal(direcao(h))}"></span>`).join('')}</div>`;
 }
+function voltarInicio(){
+  return `<button class="voltar-inicio" onclick="nav('home')" aria-label="Voltar ao panorama inicial"><span class="seta-voltar" aria-hidden="true">←</span><span>Voltar ao panorama</span></button>`;
+}
 function telaSetor(slug){
   const setor=setorPorSlug(slug)||SETORES[0],grupo=grupoDe(setor),r=resumoGrupo(grupo);
   const cor=r.share>=.6?CORES.positivo:r.share>=.4?CORES.estavel:CORES.negativo;
   const refs=P.panorama_historico.filter(p=>p.referencia<=referenciaSelecionada).slice(-8).map(p=>p.referencia);
-  return `<div class="breadcrumb"><button onclick="nav('home')">Panorama</button><span>/</span><span>${esc(setor.nome)}</span></div>
+  return `<div class="breadcrumb">${voltarInicio()}<span>/</span><span>${esc(setor.nome)}</span></div>
     <header class="pagina-cab"><div><div class="secao-kicker">Setor · retrato de ${mesPt(referenciaSelecionada,true)}</div><h1>${esc(setor.nome)}</h1><p>${r.altas} indicadores avançam, ${r.quedas} recuam e ${r.total-r.altas-r.quedas} permanecem estáveis. Selecione outra competência para comparar a composição do setor.</p></div>
     <div class="pagina-resumo"><strong style="color:${cor}">${r.altas} / ${r.total}</strong><span class="competencia">indicadores em alta</span></div></header>
     <div class="competencias">${refs.map(ref=>`<button class="competencia-link ${ref===referenciaSelecionada?'ativo':''}" onclick="selecionarMes('${ref}')">${mesPt(ref)}</button>`).join('')}</div>
@@ -339,7 +355,7 @@ function telaDetalhe(chave,slug){
   const ind=P.indicadores.find(i=>i.chave===chave)||P.indicadores[0];
   const setor=setorPorSlug(slug)||SETORES.find(s=>s.dims.includes(ind.dimensao))||SETORES[0];
   const h=leituraEm(ind),s=h?direcao(h):0,cor=h?corSinal(s):CORES.neutro,txt=TEXTOS[ind.chave]||{};
-  return `<div class="breadcrumb"><button onclick="nav('home')">Panorama</button><span>/</span><button onclick="nav('s/${setor.slug}')">${esc(setor.nome)}</button><span>/</span><span>${esc(ind.rotulo)}</span></div>
+  return `<div class="breadcrumb">${voltarInicio()}<span>/</span><button onclick="nav('s/${setor.slug}')">${esc(setor.nome)}</button><span>/</span><span>${esc(ind.rotulo)}</span></div>
     <header class="detalhe-topo"><div><div class="secao-kicker">${h?setaSinal(s)+' '+textoSinal(s):'Sem leitura'} · competência ${h?mesPt(h.referencia,true):'—'}</div><h1>${esc(ind.rotulo)}</h1><p>Leitura baseada na última publicação oficial disponível. O histórico abaixo permite separar o movimento recente da tendência de três períodos.</p></div>
     <div class="detalhe-fonte"><strong>Fonte</strong><br>${esc(ind.fonte_desc)}<br><br><strong>Origem desta coleta</strong><br>${esc(ind.origem_dado)} · ${esc(ind.coleta_status)}</div></header>
     <div class="metricas">${metrica('Variação no período',h?fmtVar(h.var_mensal,ind.unidade):'—','Mudança contra a competência anterior.',TINTA)}
@@ -350,7 +366,7 @@ function telaDetalhe(chave,slug){
       <article class="ficha"><div class="secao-kicker">Relevância</div><h3>Por que importa?</h3><p>${esc(txt.por_que||'—')}</p></article>
       <article class="ficha"><div class="secao-kicker">Leitura</div><h3>Como interpretar?</h3><p>${esc(txt.como||'—')}</p></article></div>`;
 }
-function render(){
+function render(moverFoco=false){
   const rota=(location.hash||'#home').slice(1),partes=rota.split('/'),conteudo=document.getElementById('conteudo');
   conteudo.classList.remove('revelar'); void conteudo.offsetWidth; conteudo.classList.add('revelar');
   if(partes[0]==='s'&&partes[1]) conteudo.innerHTML=telaSetor(partes[1]);
@@ -360,13 +376,18 @@ function render(){
     plotSerie(document.getElementById('grafico-serie'),ind,h,60);plotSerie(document.getElementById('grafico-recente'),ind,h,12);
   } else conteudo.innerHTML=telaHome();
   window.scrollTo(0,0);
+  if(moverFoco) setTimeout(()=>conteudo.focus({preventScroll:true}),0);
 }
-window.addEventListener('hashchange',render);
+window.addEventListener('hashchange',()=>render(true));
 
 const cache=P.fontes_cache||[];
+const ultimoPanorama=P.panorama_historico.at(-1);
+const notaCobertura=ultimoPanorama
+  ? ` O corte do panorama é ${mesPt(ultimoPanorama.referencia,true).toLowerCase()}: ${ultimoPanorama.atualizados_no_mes} de ${ultimoPanorama.n_nucleo} séries centrais já têm essa competência${ultimoPanorama.atualizados_no_mes<ultimoPanorama.n_nucleo?'; as demais mantêm a última divulgação oficial disponível.':'; todas as séries centrais estão nessa competência.'}`
+  : '';
 document.getElementById('mes-corrente').textContent=mesPt(P.mes_corrente||P.referencia_alvo,true);
 document.getElementById('competencia-recente').textContent=mesPt(P.competencia_mais_recente,true).toLowerCase();
-document.getElementById('aviso-frescor').innerHTML=`<span class="sinal-frescor ${cache.length?'cache':''}"></span><div><strong>Site atualizado em ${esc(P.gerado_em)}.</strong> Mês corrente e competência estatística não são a mesma coisa: BCB e IBGE divulgam cada série em calendários próprios. ${cache.length?`Nesta execução, ${cache.length} série(s) usaram o último cache válido: ${cache.map(esc).join(', ')}.`:'Todas as séries desta execução vieram das fontes oficiais.'}</div>`;
+document.getElementById('aviso-frescor').innerHTML=`<span class="sinal-frescor ${cache.length?'cache':''}"></span><div><strong>Site atualizado em ${esc(P.gerado_em)}.</strong> Mês corrente e competência estatística não são a mesma coisa: BCB e IBGE divulgam cada série em calendários próprios.${notaCobertura} ${cache.length?`Nesta execução, ${cache.length} série(s) usaram o último cache válido: ${cache.map(esc).join(', ')}.`:'Todas as séries desta execução vieram das fontes oficiais.'}</div>`;
 document.getElementById('rodape').innerHTML=`<span><strong>Metodologia:</strong> variação no período, média móvel de três períodos e comparação contra os três períodos anteriores.</span><span>Leitura analítica; não constitui datação oficial do ciclo.</span>`;
 render();
 </script>
