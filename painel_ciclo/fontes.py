@@ -32,7 +32,8 @@ def _get(url, tentativas=None, espera=3):
             ultimo_erro = f"HTTP {r.status_code}: {r.text[:160]}"
         except Exception as e:  # noqa: BLE001
             ultimo_erro = str(e)
-        time.sleep(espera * (i + 1))
+        if i < tentativas - 1:
+            time.sleep(espera * (i + 1))
     raise RuntimeError(f"Falha ao acessar {url}\n  -> {ultimo_erro}")
 
 
@@ -133,10 +134,24 @@ def coleta_series(catalogo, usar_cache=True):
                                 fonte.get("classif", []), freq=d["freq"])
             else:
                 raise ValueError(f"tipo de fonte desconhecido: {fonte['tipo']}")
+            ultima_api = s.index.max()
+            cache_complementar = False
+            # O cache persistido pode conter uma competência mais recente do
+            # que uma resposta parcial da API. Mescla sem permitir regressão
+            # temporal; em datas repetidas, a leitura nova prevalece.
+            if usar_cache and os.path.exists(cache):
+                anterior = pd.read_csv(cache, index_col=0, parse_dates=True)["valor"]
+                anterior.index = pd.DatetimeIndex(anterior.index)
+                cache_complementar = anterior.index.max() > ultima_api
+                s = pd.concat([anterior, s]).groupby(level=0).last().sort_index()
             s.name = chave
-            s.to_csv(cache, header=["valor"])
+            s.to_csv(cache, header=["valor"], lineterminator="\n")
             series[chave] = s
-            log[chave] = f"OK  ({len(s)} obs, ult. {s.index[-1].date()})"
+            if cache_complementar:
+                log[chave] = ("CACHE complementar (resposta oficial terminou em "
+                              f"{ultima_api.date()}; ult. {s.index[-1].date()})")
+            else:
+                log[chave] = f"OK  ({len(s)} obs, ult. {s.index[-1].date()})"
         except Exception as e:  # noqa: BLE001
             if usar_cache and os.path.exists(cache):
                 s = pd.read_csv(cache, index_col=0, parse_dates=True)["valor"]
@@ -158,8 +173,11 @@ def coleta_series(catalogo, usar_cache=True):
         else:
             raise ValueError(f"operação derivada desconhecida: {fonte['op']}")
         s.name = chave
-        s.to_csv(os.path.join(DIR_DADOS, f"{chave}.csv"), header=["valor"])
+        s.to_csv(os.path.join(DIR_DADOS, f"{chave}.csv"),
+                 header=["valor"], lineterminator="\n")
         series[chave] = s
-        log[chave] = f"OK derivado de {fonte['base']} ({len(s)} obs)"
+        origem_base = log.get(fonte["base"], "")
+        prefixo = "CACHE" if origem_base.startswith("CACHE") else "OK"
+        log[chave] = f"{prefixo} derivado de {fonte['base']} ({len(s)} obs)"
 
     return series, log

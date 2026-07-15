@@ -67,8 +67,14 @@ do BCB/IBGE estiver fora do ar durante o build, o site sai com o último
 dado conhecido em vez de falhar.
 
 Os coletores aceitam `PAINEL_HTTP_TIMEOUT` (segundos) e
-`PAINEL_HTTP_TENTATIVAS` por variável de ambiente. O workflow usa limites
-curtos para recorrer rapidamente ao cache quando uma fonte estiver instável.
+`PAINEL_HTTP_TENTATIVAS` por variável de ambiente. O workflow repete falhas
+transitórias, preserva o cache mais recente entre execuções e nunca substitui
+uma competência nova por uma resposta mais antiga da fonte.
+
+Na página inicial, o **panorama no tempo** recompõe a difusão dos últimos 12
+meses com as séries hoje disponíveis. A matriz explicita quando a competência
+da fonte é anterior ao mês analisado. Esse histórico é recalculado; não é um
+arquivo de *vintages* (versões que eram conhecidas em cada data passada).
 
 ### Relatório (linha de comando)
 

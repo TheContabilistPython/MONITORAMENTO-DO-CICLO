@@ -23,8 +23,17 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+
+      - name: Recupera o último cache válido das séries
+        uses: actions/cache@v4
+        with:
+          path: painel_ciclo/dados
+          key: painel-dados-${{ github.run_id }}
+          restore-keys: |
+            painel-dados-
 
       # A origem precisa ser selecionada uma vez em
       # Settings > Pages > Source: GitHub Actions. O GITHUB_TOKEN do workflow
@@ -43,10 +52,10 @@ jobs:
       - name: Coleta dados e gera o site estático
         env:
           PYTHONIOENCODING: utf-8
-          # Em caso de indisponibilidade, usa rapidamente o cache versionado
-          # em vez de bloquear o deploy por vários minutos a cada série.
-          PAINEL_HTTP_TIMEOUT: "15"
-          PAINEL_HTTP_TENTATIVAS: "1"
+          # Tenta novamente antes de recorrer ao último cache válido. Isso
+          # evita congelar uma competência por uma falha transitória da API.
+          PAINEL_HTTP_TIMEOUT: "30"
+          PAINEL_HTTP_TENTATIVAS: "3"
         run: python -m painel_ciclo.exporta_site
 
       - uses: actions/upload-pages-artifact@v3

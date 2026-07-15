@@ -25,6 +25,7 @@ from . import painel_dados
 from .textos import TEXTOS
 
 DIR_SITE = os.path.join(os.path.dirname(__file__), "site")
+TEMPLATE_ATUAL = os.path.join(os.path.dirname(__file__), "site_template.html")
 
 
 # o template usa __TOKENS__ em vez de f-string para não conflitar com as
@@ -521,7 +522,9 @@ render();
 def gerar(usar_cache=True, destino=None):
     """Coleta os dados, monta o payload e grava site/index.html."""
     payload = painel_dados.montar_payload(usar_cache=usar_cache)
-    pagina = (TEMPLATE
+    with io.open(TEMPLATE_ATUAL, "r", encoding="utf-8") as f:
+        template = f.read()
+    pagina = (template
               .replace("__PAYLOAD__", json.dumps(payload, ensure_ascii=False))
               .replace("__TEXTOS__", json.dumps(TEXTOS, ensure_ascii=False))
               .replace("__SETORES__", json.dumps(config.SETORES, ensure_ascii=False)))
