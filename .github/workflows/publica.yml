@@ -26,6 +26,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A origem precisa ser selecionada uma vez em
+      # Settings > Pages > Source: GitHub Actions. O GITHUB_TOKEN do workflow
+      # não tem permissão administrativa para habilitar o Pages sozinho.
+      - name: Configura o GitHub Pages
+        uses: actions/configure-pages@v5
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -37,6 +43,10 @@ jobs:
       - name: Coleta dados e gera o site estático
         env:
           PYTHONIOENCODING: utf-8
+          # Em caso de indisponibilidade, usa rapidamente o cache versionado
+          # em vez de bloquear o deploy por vários minutos a cada série.
+          PAINEL_HTTP_TIMEOUT: "15"
+          PAINEL_HTTP_TENTATIVAS: "1"
         run: python -m painel_ciclo.exporta_site
 
       - uses: actions/upload-pages-artifact@v3

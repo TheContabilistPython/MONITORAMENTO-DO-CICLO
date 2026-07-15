@@ -54,12 +54,21 @@ recoleta os dados das fontes e republica o site no GitHub Pages. Passos
 (uma única vez):
 
 1. Crie um repositório no GitHub e suba esta pasta (`gdo/`).
-2. No repositório: **Settings → Pages → Source: GitHub Actions**.
-3. Pronto — o painel fica em `https://<usuario>.github.io/<repositorio>/`.
+2. Antes da primeira execução, abra **Settings → Pages** e, em **Build and
+   deployment**, selecione **Source: GitHub Actions**. Essa etapa precisa ser
+   feita por um administrador; o `GITHUB_TOKEN` do workflow não pode alterar
+   essa configuração do repositório.
+3. Execute o workflow manualmente em **Actions → Publica painel no GitHub
+   Pages → Run workflow** (ou faça um novo push).
+4. Pronto — o painel fica em `https://<usuario>.github.io/<repositorio>/`.
 
 O cache em `painel_ciclo/dados/` é commitado de propósito: se alguma API
 do BCB/IBGE estiver fora do ar durante o build, o site sai com o último
 dado conhecido em vez de falhar.
+
+Os coletores aceitam `PAINEL_HTTP_TIMEOUT` (segundos) e
+`PAINEL_HTTP_TENTATIVAS` por variável de ambiente. O workflow usa limites
+curtos para recorrer rapidamente ao cache quando uma fonte estiver instável.
 
 ### Relatório (linha de comando)
 

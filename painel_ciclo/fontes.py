@@ -15,12 +15,14 @@ import pandas as pd
 DIR_DADOS = os.path.join(os.path.dirname(__file__), "dados")
 os.makedirs(DIR_DADOS, exist_ok=True)
 
-TIMEOUT = 60
+TIMEOUT = float(os.getenv("PAINEL_HTTP_TIMEOUT", "60"))
+TENTATIVAS = int(os.getenv("PAINEL_HTTP_TENTATIVAS", "3"))
 _HEADERS = {"User-Agent": "PainelCicloEconomico/1.0 (monitoramento conjuntural)"}
 
 
-def _get(url, tentativas=3, espera=3):
+def _get(url, tentativas=None, espera=3):
     """GET com pequena política de retry."""
+    tentativas = TENTATIVAS if tentativas is None else tentativas
     ultimo_erro = None
     for i in range(tentativas):
         try:
